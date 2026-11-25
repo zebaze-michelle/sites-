@@ -19,3 +19,11 @@ footer { text-align: center; padding: 22px; background: #15345b;
 color: white; } 
 @media (max-width: 600px) { header { display: block; } nav a { 
 display: inline-block; margin: 12px 12px 0 0; } } 
+.promotion {
+  background: #fff3cd;
+  border: 2px solid #ff9800;
+  border-radius: 8px;
+  margin: 20px;
+  padding: 20px;
+  text-align: center;
+}
