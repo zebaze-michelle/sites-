@@ -1,0 +1,36 @@
+name: DevSecOps AfriShop 
+on: 
+  push: 
+    branches: [main] 
+  workflow_dispatch: 
+permissions: 
+  contents: read 
+jobs: 
+  security: 
+    runs-on: ubuntu-latest 
+    steps: 
+      - name: Recuperer le code 
+        uses: actions/checkout@v4 
+      - name: Verifier les fichiers 
+        run: | 
+          test -s index.html 
+          test -s style.css 
+          docker compose config -q 
+      - name: Verifier le port local 
+        run: | 
+          docker compose config --format json | python -c 'import json,sys; p=json.load(sys.stdin)["services"]["web"]["ports"]; sys.exit(0 if p and all(x.get("host_ip")=="127.0.0.1" for x in p) else 1)' 
+      - name: Construire image 
+        run: docker build -t afrishop:ci . 
+      - name: Scanner image avec Trivy 
+        uses: aquasecurity/trivy-action@v0.36.0 
+        with: 
+          image-ref: afrishop:ci 
+          format: table 
+          scanners: vuln 
+          severity: HIGH,CRITICAL 
+          exit-code: "1" 
+  validation: 
+    needs: security 
+    runs-on: ubuntu-latest 
+    steps: 
+      - run: echo "Controles de securite reussis" 
